@@ -137,7 +137,6 @@ class CSV():
                 temporada = temporada.replace('<', '')
                 temporada = temporada.replace('>', '')
                 equipo = elemento['Cadena_0']
-                dato = elemento['Bandera_Archivo']
                 file = ''
                 ji = 0
                 jf = 0
@@ -310,36 +309,41 @@ class CSV():
     def temporadaDeUnEquipo(self, sesson, equipo, file, ji, jf):
         session = dict()
         data = pd.read_csv('Document/LaLigaBot-LFP.csv', header=0)
-        temporada = data[(data.Temporada == sesson)
-                         & (data.Equipo1 == equipo) | (data.Equipo2 == equipo)]
+        temporada = data[(data.Temporada == sesson)]
         if temporada.empty:
             print('Temporada o Jornada no existen revice Documentacion')
             answer = 'Este Resultado no existe revice Documentacion'
             return answer
         else:
+            temporada = temporada.sort_values('Jornada', ascending=True)
+            temporada = temporada.reset_index()
+            temporada = temporada.drop(['index'], axis=1)
             if ji == 0 and jf == 0:
                 lista_equipos = list()
-                temporada = temporada.sort_values('Jornada', ascending=True)
-                temporada = temporada.reset_index()
-                temporada = temporada.drop(['index'], axis=1)
-                Jornada = temporada["Jornada"]
-                Equipo1 = temporada["Equipo1"]
-                Equipo2 = temporada["Equipo2"]
-                Goles1 = temporada["Goles1"]
-                Goles2 = temporada["Goles2"]
-                for indice in range(0, len(temporada)):
-                    equipo1 = Equipo1[indice]
-                    equipo1 = str(equipo1)
-                    equipo2 = Equipo2[indice]
-                    equipo2 = str(equipo2)
-                    goles1 = Goles1[indice]
-                    goles1 = int(goles1)
-                    goles2 = Goles2[indice]
-                    goles2 = int(goles2)
-                    jornada = Jornada[indice]
-                    jornada = int(jornada)
-                    lista_equipos.append(
-                        [jornada, equipo1, equipo2, goles1, goles2])
+                for num in range(len(temporada)):
+                    if num in temporada.Jornada.values:
+                        jornadaData = temporada[(temporada.Jornada == num)]
+                        jornadaData = jornadaData.reset_index()
+                        jornadaData = jornadaData.drop(['index'], axis=1)
+                        Jornada = jornadaData["Jornada"]
+                        Equipo1 = jornadaData["Equipo1"]
+                        Equipo2 = jornadaData["Equipo2"]
+                        Goles1 = jornadaData["Goles1"]
+                        Goles2 = jornadaData["Goles2"]
+                        for indice in range(0, len(jornadaData)):
+                            jornada = Jornada[indice]
+                            jornada = str(jornada)
+                            equipo1 = Equipo1[indice]
+                            equipo1 = str(equipo1)
+                            equipo2 = Equipo2[indice]
+                            equipo2 = str(equipo2)
+                            goles1 = Goles1[indice]
+                            goles1 = int(goles1)
+                            goles2 = Goles2[indice]
+                            goles2 = str(goles2)
+                            if equipo1 == equipo or equipo2 == equipo:
+                                lista_equipos.append(
+                                    [jornada, equipo1, equipo2, goles1, goles2])
                 session["Resultado"] = lista_equipos
                 equipo = str(equipo)
                 session["Equipo"] = equipo
@@ -358,9 +362,6 @@ class CSV():
             else:
                 list_num = list()
                 lista_equipos = list()
-                temporada = temporada.sort_values('Jornada', ascending=True)
-                temporada = temporada.reset_index()
-                temporada = temporada.drop(['index'], axis=1)
                 for num in range(ji, jf+1):
                     if num in temporada.Jornada.values:
                         list_num.append("True")
@@ -370,16 +371,17 @@ class CSV():
                     print("El Rango de la Jornada es Incorecto")
                 else:
                     for num in range(ji, jf+1):
-                        dato = temporada[(temporada.Jornada == num)]
-                        dato = dato.reset_index()
-                        dato = dato.drop(['index'], axis=1)
-                        print(dato)
-                        Jornada = dato["Jornada"]
-                        Equipo1 = dato["Equipo1"]
-                        Equipo2 = dato["Equipo2"]
-                        Goles1 = dato["Goles1"]
-                        Goles2 = dato["Goles2"]
-                        for indice in range(0, len(dato)):
+                        jornadaData = temporada[(temporada.Jornada == num)]
+                        jornadaData = jornadaData.reset_index()
+                        jornadaData = jornadaData.drop(['index'], axis=1)
+                        Jornada = jornadaData["Jornada"]
+                        Equipo1 = jornadaData["Equipo1"]
+                        Equipo2 = jornadaData["Equipo2"]
+                        Goles1 = jornadaData["Goles1"]
+                        Goles2 = jornadaData["Goles2"]
+                        for indice in range(0, len(jornadaData)):
+                            jornada = Jornada[indice]
+                            jornada = str(jornada)
                             equipo1 = Equipo1[indice]
                             equipo1 = str(equipo1)
                             equipo2 = Equipo2[indice]
@@ -387,11 +389,10 @@ class CSV():
                             goles1 = Goles1[indice]
                             goles1 = int(goles1)
                             goles2 = Goles2[indice]
-                            goles2 = int(goles2)
-                            jornada = Jornada[indice]
-                            jornada = int(jornada)
-                            lista_equipos.append(
-                                [jornada, equipo1, equipo2, goles1, goles2])
+                            goles2 = str(goles2)
+                            if equipo1 == equipo or equipo2 == equipo:
+                                lista_equipos.append(
+                                    [jornada, equipo1, equipo2, goles1, goles2])
 
                     session["Resultado"] = lista_equipos
                     equipo = str(equipo)
